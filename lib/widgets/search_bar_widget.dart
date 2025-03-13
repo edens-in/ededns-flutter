@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 // Import speech_to_text package when added manually
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import '../theme/app_theme.dart';
+import '../bloc/search/search_bloc.dart';
+import '../bloc/search/search_event.dart';
+import '../bloc/search/search_state.dart';
 
 class SearchBarWidget extends StatefulWidget {
   final String hintText;
@@ -156,86 +160,129 @@ class _SearchBarWidgetState extends State<SearchBarWidget> {
     final iconColor = widget.iconColor ?? 
         (isDark ? Colors.grey[300] : Colors.grey[600]);
     
-    return Container(
-      padding: widget.padding ?? const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: widget.borderRadius ?? BorderRadius.circular(30),
-        border: Border.all(color: Colors.grey),
-        // boxShadow: [
-        //   BoxShadow(
-        //     color: Colors.black.withOpacity(0.05),
-        //     offset: const Offset(0, 2),
-        //     blurRadius: 4.0,
-        //   ),
-        // ],
-      ),
-      child: Row(
-        children: [
-          Icon(
-            Icons.search,
-            color: iconColor,
-            size: 20,
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: TextField(
-              controller: _searchController,
-              focusNode: widget.focusNode,
-              style: TextStyle(color: textColor),
-              autofocus: widget.autofocus,
-              decoration: InputDecoration(
-                hintText: widget.hintText,
-                hintStyle: TextStyle(color: hintColor),
-                border: InputBorder.none,
-                contentPadding: EdgeInsets.zero,
-                isDense: true,
-              ),
-              textInputAction: TextInputAction.search,
-              onSubmitted: (_) => _performSearch(),
-            ),
-          ),
-          if (_searchController.text.isNotEmpty)
-            GestureDetector(
-              onTap: () {
-                _searchController.clear();
-                setState(() {});
-              },
-              child: Padding(
-                padding: const EdgeInsets.all(4.0),
-                child: Icon(
-                  Icons.close,
-                  color: iconColor,
-                  size: 18,
+    return BlocConsumer<SearchBloc, SearchState>(
+      listenWhen: (previous, current) => 
+        current.hasError || 
+        (previous.voiceStatus != current.voiceStatus && current.voiceStatus == VoiceSearchStatus.error),
+      listener: (context, state) {
+        if (state.hasError) {
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('Voice Recognition Error'),
+              content: Text(state.errorMessage!),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('OK'),
                 ),
-              ),
+              ],
             ),
-          GestureDetector(
-            onTap: _startListening,
-            child: Padding(
-              padding: const EdgeInsets.all(4.0),
-              child: Icon(
-                _isListening ? Icons.mic : Icons.mic_none,
-                color: _isListening 
-                    ? AppTheme.primaryColor 
-                    : iconColor,
-                size: 20,
+          );
+        }
+      },
+      builder: (context, state) {
+        return 
+            Container(
+              padding:EdgeInsets.only(left: 12),
+              decoration: BoxDecoration(
+                color: backgroundColor,
+                borderRadius: widget.borderRadius ?? BorderRadius.circular(30),
+                border: Border.all(color: Colors.grey),
               ),
-            ),
-          ),
-          GestureDetector(
-            onTap: _performSearch,
-            child: Padding(
-              padding: const EdgeInsets.all(4.0),
-              child: Icon(
-                Icons.search_rounded,
-                color: AppTheme.primaryColor,
-                size: 22,
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.search,
+                    color: iconColor,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: TextField(
+                      controller: _searchController,
+                      focusNode: widget.focusNode,
+                      style: TextStyle(color: textColor),
+                      autofocus: widget.autofocus,
+                      decoration: InputDecoration(
+                        hintText: widget.hintText,
+                        hintStyle: TextStyle(color: hintColor),
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.zero,
+                        isDense: true,
+                      ),
+                      textInputAction: TextInputAction.search,
+                      onChanged: (value) {
+                        context.read<SearchBloc>().add(SearchQueryChanged(value));
+                      },
+                      onSubmitted: (value) {
+                        if (value.isNotEmpty) {
+                          context.read<SearchBloc>().add(SearchSubmitted(value));
+                          widget.onSearch(value);
+                          FocusScope.of(context).unfocus();
+                        }
+                      },
+                    ),
+                  ),
+                  if (_searchController.text.isNotEmpty)
+                    GestureDetector(
+                      onTap: () {
+                        _searchController.clear();
+                        context.read<SearchBloc>().add(SearchCleared());
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(4.0),
+                        child: Icon(
+                          Icons.close,
+                          color: iconColor,
+                          size: 18,
+                        ),
+                      ),
+                    ),
+                  GestureDetector(
+                    onTap: () {
+                      FocusScope.of(context).unfocus();
+                      if (state.isVoiceSearchActive) {
+                        context.read<SearchBloc>().add(VoiceSearchStopped());
+                      } else {
+                        context.read<SearchBloc>().add(VoiceSearchStarted());
+                      }
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(4.0),
+                      child: Icon(
+                        state.isVoiceSearchActive ? Icons.mic : Icons.mic_none,
+                        color: state.isVoiceSearchActive 
+                            ? AppTheme.primaryColor 
+                            : iconColor,
+                        size: 20,
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      if (_searchController.text.isNotEmpty) {
+                        context.read<SearchBloc>().add(SearchSubmitted(_searchController.text));
+                        widget.onSearch(_searchController.text);
+                        FocusScope.of(context).unfocus();
+                      }
+                    },
+                    child: Container(
+                      padding: widget.padding ?? const EdgeInsets.symmetric(horizontal: 18.0, vertical: 12.0),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(30),
+                      ),child: Icon(
+                        Icons.search_rounded,
+                        color: AppTheme.primaryColor,
+                        size: 22,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ),
-        ],
-      ),
+            );
+      },
     );
   }
 } 

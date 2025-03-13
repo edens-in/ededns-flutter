@@ -1,3 +1,4 @@
+import 'package:edens/widgets/app_footer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/home/home_bloc.dart';
@@ -12,8 +13,6 @@ import '../widgets/promotional_banner.dart';
 import '../widgets/fashion_categories_showcase.dart';
 import '../widgets/search_section.dart';
 import '../theme/app_theme.dart';
-import '../services/snackbar_service.dart';
-import 'settings_screen.dart';
 import 'search_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -294,7 +293,7 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
                     ),
                     const SizedBox(height: 8),
                     const FeaturedProducts(),
-                    const SizedBox(height: 32),
+                    AppFooter(),
                   ],
                 ),
               ),

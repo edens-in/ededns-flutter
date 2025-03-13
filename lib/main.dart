@@ -8,9 +8,9 @@ import 'bloc/home/home_bloc.dart';
 import 'bloc/theme/theme_bloc.dart';
 import 'bloc/theme/theme_state.dart';
 import 'bloc/connectivity/connectivity_bloc.dart';
-import 'bloc/banner/banner_bloc.dart';
 import 'services/snackbar_service.dart';
 import 'widgets/connectivity_listener.dart';
+import 'config/app_config.dart';
 
 void main() async {
   // Ensure Flutter is initialized
@@ -21,6 +21,13 @@ void main() async {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
+
+  // Initialize app configuration
+  AppConfig.initialize(
+    env: const String.fromEnvironment('FLUTTER_ENV') == 'prod' 
+        ? Environment.prod 
+        : Environment.dev,
+  );
   
   runApp(const MyApp());
 }

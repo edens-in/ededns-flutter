@@ -32,6 +32,20 @@ class _CartScreenState extends State<CartScreen> with AutomaticKeepAliveClientMi
       'quantity': 2,
       'image': 'shoes',
     },
+    {
+      'id': 4,
+      'name': 'Running Shoes',
+      'price': 89.99,
+      'quantity': 2,
+      'image': 'shoes',
+    },
+    {
+      'id': 5,
+      'name': 'Running Shoes',
+      'price': 89.99,
+      'quantity': 2,
+      'image': 'shoes',
+    },
   ];
 
   @override
@@ -52,7 +66,13 @@ class _CartScreenState extends State<CartScreen> with AutomaticKeepAliveClientMi
     
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Shopping Cart'),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Your cart', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
+            Text('\$ 27.40', style: TextStyle(fontSize: 14,),)
+          ],
+        ),
         centerTitle: false,
       ),
       body: _cartItems.isEmpty
@@ -75,6 +95,7 @@ class _CartScreenState extends State<CartScreen> with AutomaticKeepAliveClientMi
   }
 
   Widget _buildEmptyCart() {
+    final theme = Theme.of(context);
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -82,21 +103,18 @@ class _CartScreenState extends State<CartScreen> with AutomaticKeepAliveClientMi
           Icon(
             Icons.shopping_cart_outlined,
             size: 100,
-            color: Colors.grey[400],
+            color: theme.colorScheme.onSurface.withOpacity(0.4),
           ),
           const SizedBox(height: 16),
-          const Text(
+          Text(
             'Your cart is empty',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
+            style: theme.textTheme.titleLarge,
           ),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             'Add items to your cart to start shopping',
-            style: TextStyle(
-              color: Colors.grey,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurface.withOpacity(0.7),
             ),
           ),
           const SizedBox(height: 24),
@@ -112,51 +130,46 @@ class _CartScreenState extends State<CartScreen> with AutomaticKeepAliveClientMi
   }
 
   Widget _buildCartItem(Map<String, dynamic> item) {
+    final theme = Theme.of(context);
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Row(
           children: [
-            // Product image
             Container(
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: Colors.grey[200],
+                color: theme.colorScheme.surface,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Center(
                 child: Icon(
                   _getIconForProduct(item['image']),
                   size: 40,
-                  color: Colors.grey[600],
+                  color: theme.colorScheme.onSurface.withOpacity(0.6),
                 ),
               ),
             ),
             const SizedBox(width: 16),
-            // Product details
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     item['name'],
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
+                    style: theme.textTheme.titleMedium,
                   ),
                   const SizedBox(height: 4),
                   Text(
                     '\$${item['price']}',
-                    style: TextStyle(
+                    style: theme.textTheme.titleMedium?.copyWith(
                       color: AppTheme.primaryColor,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 8),
-                  // Quantity selector
                   Row(
                     children: [
                       _buildQuantityButton(
@@ -178,12 +191,14 @@ class _CartScreenState extends State<CartScreen> with AutomaticKeepAliveClientMi
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey[300]!),
+                          border: Border.all(color: theme.colorScheme.outline),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
                           '${item['quantity']}',
-                          style: const TextStyle(fontWeight: FontWeight.bold),
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                       _buildQuantityButton(
@@ -199,10 +214,9 @@ class _CartScreenState extends State<CartScreen> with AutomaticKeepAliveClientMi
                 ],
               ),
             ),
-            // Remove button
             IconButton(
               icon: const Icon(Icons.delete_outline),
-              color: Colors.red,
+              color: theme.colorScheme.error,
               onPressed: () => _removeItem(item['id']),
             ),
           ],
@@ -215,13 +229,14 @@ class _CartScreenState extends State<CartScreen> with AutomaticKeepAliveClientMi
     required IconData icon,
     required VoidCallback onPressed,
   }) {
+    final theme = Theme.of(context);
     return InkWell(
       onTap: onPressed,
       borderRadius: BorderRadius.circular(4),
       child: Container(
         padding: const EdgeInsets.all(4),
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey[300]!),
+          border: Border.all(color: theme.colorScheme.outline),
           borderRadius: BorderRadius.circular(4),
         ),
         child: Icon(
@@ -234,13 +249,14 @@ class _CartScreenState extends State<CartScreen> with AutomaticKeepAliveClientMi
   }
 
   Widget _buildOrderSummary() {
+    final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.colorScheme.surface,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: theme.shadowColor.withOpacity(0.05),
             blurRadius: 10,
             offset: const Offset(0, -5),
           ),
@@ -249,23 +265,18 @@ class _CartScreenState extends State<CartScreen> with AutomaticKeepAliveClientMi
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Order Summary',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+            style: theme.textTheme.titleLarge,
           ),
           const SizedBox(height: 16),
           _buildSummaryRow('Subtotal', '\$${_subtotal.toStringAsFixed(2)}'),
           _buildSummaryRow('Tax (8%)', '\$${_tax.toStringAsFixed(2)}'),
           _buildSummaryRow(
             'Shipping',
-            _shipping > 0
-                ? '\$${_shipping.toStringAsFixed(2)}'
-                : 'Free',
+            _shipping > 0 ? '\$${_shipping.toStringAsFixed(2)}' : 'Free',
           ),
-          const Divider(height: 24),
+          Divider(color: theme.colorScheme.outline, height: 24),
           _buildSummaryRow(
             'Total',
             '\$${_total.toStringAsFixed(2)}',
@@ -284,12 +295,16 @@ class _CartScreenState extends State<CartScreen> with AutomaticKeepAliveClientMi
               child: const Text('Proceed to Checkout'),
             ),
           ),
+          SizedBox(
+            height: 120,
+          )
         ],
       ),
     );
   }
 
   Widget _buildSummaryRow(String label, String value, {bool isBold = false}) {
+    final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
@@ -297,17 +312,15 @@ class _CartScreenState extends State<CartScreen> with AutomaticKeepAliveClientMi
         children: [
           Text(
             label,
-            style: TextStyle(
+            style: (isBold ? theme.textTheme.titleLarge : theme.textTheme.bodyLarge)?.copyWith(
               fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-              fontSize: isBold ? 18 : 16,
             ),
           ),
           Text(
             value,
-            style: TextStyle(
+            style: (isBold ? theme.textTheme.titleLarge : theme.textTheme.bodyLarge)?.copyWith(
               fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-              fontSize: isBold ? 18 : 16,
-              color: isBold ? AppTheme.primaryColor : null,
+              color: isBold ? AppTheme.primaryColor : theme.colorScheme.onSurface,
             ),
           ),
         ],

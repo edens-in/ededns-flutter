@@ -18,6 +18,13 @@ class _PromotionalBannerState extends State<PromotionalBanner> {
 
   // Define promotional items
   static final List<PromotionalItem> promotionalItems = [
+    PromotionalItem(
+      title: 'Summer Sale',
+      subtitle: 'sale on all products',
+      buttonText: 'View Deals',
+      overlayColor: Colors.black.withOpacity(0.2),
+      networkImageUrl: 'https://plus.unsplash.com/premium_photo-1668896123844-be3aec7a4776?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8c3VtbWVyJTIwZmFzaGlvbnxlbnwwfHwwfHx8MA%3D%3D',
+    ),
     // Gradient card (original design)
     PromotionalItem(
       title: 'Summer Sale',
@@ -34,7 +41,7 @@ class _PromotionalBannerState extends State<PromotionalBanner> {
       title: 'New Collection',
       subtitle: 'Discover the latest trends',
       buttonText: 'Explore',
-      networkImageUrl: 'https://plus.unsplash.com/premium_photo-1695575593603-1f42ca27bb6d?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8ZmFzaGlvbnxlbnwwfDB8MHx8fDA%3D',
+      networkImageUrl: 'https://plus.unsplash.com/premium_photo-1683817138481-dcdf64a40859?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8ZmFzaGlvbnxlbnwwfDB8MHx8fDA%3D',
       overlayColor: Colors.black.withOpacity(0.4),
     ),
     // Another gradient card
@@ -42,11 +49,8 @@ class _PromotionalBannerState extends State<PromotionalBanner> {
       title: 'Premium Electronics',
       subtitle: 'Free shipping on orders over \$100',
       buttonText: 'View Deals',
-      gradientColors: [
-        Colors.blue.shade700,
-        Colors.blue.shade900,
-      ],
-      icon: Icons.devices,
+      overlayColor: Colors.black.withOpacity(0.3),
+      networkImageUrl: 'https://images.unsplash.com/photo-1588508065123-287b28e013da?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTF8fGVsZWN0cm9uaWNzfGVufDB8fDB8fHww',
     ),
     // Another network image card
     PromotionalItem(
@@ -135,8 +139,8 @@ class _PromotionalBannerState extends State<PromotionalBanner> {
                       width: state.currentPage == index ? 30 : 6,
                       decoration: BoxDecoration(
                         color: state.currentPage == index 
-                            ? Colors.grey
-                            : Colors.grey.withOpacity(0.7),
+                            ? Theme.of(context).colorScheme.primary
+                            : Theme.of(context).colorScheme.primary.withOpacity(0.5),
                         borderRadius: BorderRadius.circular(4),
                       ),
                     ),
